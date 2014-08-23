@@ -34,7 +34,7 @@ namespace network {
 
 			// TODO: check against buffer overflows.  For now just assume it fits
 			trading::network::write_message_header(write_buffer_, header);
-			google::protobuf::io::ArrayOutputStream os(write_buffer_, header.body_size);
+			google::protobuf::io::ArrayOutputStream os(write_buffer_ + HEADER_SIZE, header.body_size);
 			google::protobuf::io::CodedOutputStream cos(&os);
 			proto.SerializeToCodedStream(&cos);
 			boost::asio::write(socket_, boost::asio::buffer(write_buffer_, header.body_size + HEADER_SIZE));

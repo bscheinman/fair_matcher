@@ -29,3 +29,7 @@ tags
 # protobuf generated files
 *.pb.h
 *.pb.cc
+
+# binary files
+client/trade_client
+matcher/match_server
