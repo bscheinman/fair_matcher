@@ -24,7 +24,7 @@ void MatchServer::accept_connection_(void) {
 	sessions_.push_back(session);
 	acceptor_.async_accept(session->socket(),
 		[=](const boost::system::error_code& ec) {
-            (void)ec;
+			(void)ec;
 			session->start();
 			accept_connection_();
 		});

@@ -45,6 +45,7 @@ void NetworkSession::await_header_(void) {
 			if (bytes == HEADER_SIZE) {
 				handle_header_();
 			} else {
+				// TODO: dispose of everything after closed connection
 				cout << "connection closed" << endl;
 			}
 		});
@@ -53,11 +54,10 @@ void NetworkSession::await_header_(void) {
 
 void NetworkSession::handle_header_(void) {
 	read_message_header(read_buffer_, message_header_);
-	cout << "received header indicating " << message_header_.body_size << " bytes" << endl;
+
 	// TODO: check message size and either confirm that it does not exceed
 	// allocated buffer size, or (probably) add logic for reading messages in chunks.
 	// for now, just assume that message fits in buffer (!!!)
-
 	asio::async_read(socket_, asio::buffer(read_buffer_, message_header_.body_size),
 		[=](const boost::system::error_code& ec, size_t bytes) {
 			(void) ec;

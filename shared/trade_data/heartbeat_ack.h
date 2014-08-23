@@ -11,7 +11,7 @@ class HeartbeatAck : public ProtoWrapper<
 		trading::data::proto::ProtoHeartbeatAck,
 		trading::data::MessageType::MT_HeartbeatAck> {
 public:
-	HeartbeatAck(void);
+	HeartbeatAck(void) { }
 	HeartbeatAck(unsigned int sequence) : sequence_(sequence) { }
 	HeartbeatAck(const trading::data::proto::ProtoHeartbeatAck& heartbeat);
 	virtual void copy_from_proto(const trading::data::proto::ProtoHeartbeatAck& heartbeat) override;

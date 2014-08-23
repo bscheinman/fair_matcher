@@ -4,6 +4,8 @@
 #include <sstream>
 #include <boost/asio.hpp>
 
+#include <iostream>
+
 using namespace trading::data;
 using namespace trading::network;
 using namespace std;
@@ -21,6 +23,7 @@ void ClientSession::process_message_(MessageType message_type, const char* const
 		hb.read_from_buffer(message, message_size);
 		HeartbeatAck ack(hb.sequence());
 		send_message(ack);
+		cout << "Responded to heartbeat #" << hb.sequence() << endl;
 		break;
 	}
 	default: break;
