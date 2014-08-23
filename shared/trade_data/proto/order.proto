@@ -1,0 +1,18 @@
+package trading.data.proto;
+
+message ProtoOrder {
+  optional string order_id = 1;
+  optional string user_id = 2;
+  optional string symbol = 3;
+  optional uint32 side = 4;
+  optional uint32 quantity = 5;
+  optional float price = 6;
+  
+  enum Side {
+	UNKNOWN = 0;
+	BUY = 1;
+	SELL = 2;
+  }
+  
+  optional Side buy_or_sell = 7;
+}

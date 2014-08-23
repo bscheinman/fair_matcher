@@ -19,3 +19,13 @@
 *.exe
 *.out
 *.app
+
+# vim swap files
+*.sw[op]
+
+# tags file
+tags
+
+# protobuf generated files
+*.pb.h
+*.pb.cc

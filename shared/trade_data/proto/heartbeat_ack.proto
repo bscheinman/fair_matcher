@@ -1,0 +1,5 @@
+package trading.data.proto;
+
+message ProtoHeartbeatAck {
+	optional uint32 sequence = 1;
+}

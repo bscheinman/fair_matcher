@@ -1,0 +1,6 @@
+package trading.data.proto;
+import "order.proto";
+
+message ProtoMessage {
+	optional ProtoOrder order = 1;
+}
