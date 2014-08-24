@@ -17,7 +17,7 @@ namespace matcher {
  */
 
 void PriceGroup::add_order(const order_ptr& order) {
-	orders_.add(order);
+	orders_.push_back(order);
 	total_quantity_ += order->quantity();
 }
 
@@ -33,7 +33,7 @@ void PriceGroup::execute_shares(quantity_t shares, trade_callback callback) {
 	Trade trade;
 	if (shares == quantity()) {
 		for (auto it = orders_.begin() ; it != orders_.end() ; ++it) {
-			trade.quantity(it->quantity()).order_id(it->order_id());
+			trade.set_quantity((*it)->quantity()).set_order_id((*it)->order_id());
 			// TODO: assign trade IDs
 			// Orderbook will assign price
 			callback(trade);
@@ -59,10 +59,10 @@ order_comparer sell_comparer(&sell_compare);
 
 
 void Orderbook::add_order(const order_ptr& order) {
-	lock_guard lock(mutex_);
+	lock_guard<mutex> lock(mutex_);
 
-	group_list& groups = order.buy_or_sell() ? buy_groups_ : sell_groups_;
-	order_comparer& comparer = order.buy_or_sell() ? buy_comparer : sell_comparer_;
+	group_list& groups = order->buy_or_sell() ? buy_groups_ : sell_groups_;
+	order_comparer& comparer = order->buy_or_sell() ? buy_comparer : sell_comparer;
 	group_list::iterator it = groups.begin();
 	while (it != groups.end() && comparer(*order, *it) > 0) {
 		++it;
@@ -73,7 +73,7 @@ void Orderbook::add_order(const order_ptr& order) {
 	if (it != groups.end() && comparer(*order, *it) == 0) { 
 		it->add_order(order);
 	} else { // otherwise create a new group for it
-		PriceGroup group(order->price());
+		PriceGroup group(order->buy_or_sell(), order->price());
 		group.add_order(order);
 		groups.insert(it, move(group));
 	}
@@ -81,11 +81,12 @@ void Orderbook::add_order(const order_ptr& order) {
 
 
 void Orderbook::match_orders(trade_callback callback) {
-	lock_guard lock(mutex_);
+	lock_guard<mutex> lock(mutex_);
 	group_list::iterator it_buy = buy_groups_.begin();
 	group_list::iterator it_sell = sell_groups_.begin();
 
 	vector<Trade> trades;
+	auto add_trade = [&trades](const Trade& trade) { trades.push_back(trade); };
 	price_t mean_price;
 
 	while (it_buy != buy_groups_.end() &&
@@ -94,8 +95,8 @@ void Orderbook::match_orders(trade_callback callback) {
 
 		quantity_t exec_quantity = min(it_buy->quantity(), it_sell->quantity());
 		mean_price = (it_buy->price() + it_sell->price()) / 2;
-		it_buy->execute_shares(exec_quantity, &trades::push_back);
-		it_sell->execute_shares(exec_quantity, &trades::push_back);
+		it_buy->execute_shares(exec_quantity, add_trade);
+		it_sell->execute_shares(exec_quantity, add_trade);
 	
 		if (it_buy->quantity() == 0) {
 			it_buy = buy_groups_.erase(it_buy);
@@ -107,8 +108,8 @@ void Orderbook::match_orders(trade_callback callback) {
 			
 	}
 
-	for (vector<Trade::iterator it = trades.begin() ; it != trades.end() ; ++it) {
-		it->price(mean_price);
+	for (auto it = trades.begin() ; it != trades.end() ; ++it) {
+		it->set_price(mean_price);
 		callback(*it);
 	}
 }

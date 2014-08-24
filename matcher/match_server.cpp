@@ -20,7 +20,7 @@ MatchServer::MatchServer(io_service& io, const short port)
 
 
 void MatchServer::accept_connection_(void) {
-	shared_ptr<ServerSession> session(new ServerSession(io_));
+	shared_ptr<ServerSession> session(new ServerSession(io_, engine_));
 	sessions_.push_back(session);
 	acceptor_.async_accept(session->socket(),
 		[=](const boost::system::error_code& ec) {

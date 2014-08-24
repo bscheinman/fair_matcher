@@ -10,7 +10,7 @@
 namespace trading {
 namespace matcher {
 
-#define DEFUALT_EXEC_INTERVAL 1000
+#define DEFAULT_EXEC_INTERVAL 1000
 
 class MatcherEngine {
 public:
@@ -19,7 +19,7 @@ public:
 		: exec_interval_(exec_interval),
 		  exec_timer_(io) { }
 	MatcherEngine(boost::asio::io_service& io)
-		: MatcherEngine(io, DEFUALT_EXEC_INTERVAL) { }
+		: MatcherEngine(io, DEFAULT_EXEC_INTERVAL) { }
 	void process_order(std::shared_ptr<trading::data::Order> order);
 	void start(void);
 
