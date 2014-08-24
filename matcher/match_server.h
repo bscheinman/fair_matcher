@@ -2,6 +2,7 @@
 #define MATCH_SERVER_H_
 
 #include "server_session.h"
+#include "matcher_engine.h"
 #include <boost/asio.hpp>
 
 namespace trading {
@@ -19,6 +20,7 @@ namespace matcher {
         const short port_;
         boost::asio::ip::tcp::acceptor acceptor_;
         std::vector<std::shared_ptr<trading::matcher::ServerSession>> sessions_;
+		MatcherEngine engine_;
     };
 
 }

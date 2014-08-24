@@ -14,7 +14,7 @@ MatchServer::MatchServer(io_service& io, const short port)
 	: io_(io),
 	  port_(port),
 	  acceptor_(io, tcp::endpoint(tcp::v4(), port)),
-	  sessions_() {
+	  engine_(io) {
 	accept_connection_();
 }
 
