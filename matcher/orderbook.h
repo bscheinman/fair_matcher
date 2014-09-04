@@ -5,22 +5,24 @@
 #include "order.h"
 #include "trade.h"
 #include <functional>
+#include <list>
 #include <memory>
 #include <mutex>
-#include <list>
+#include <unordered_map>
 
 
 namespace trading {
 namespace matcher {
 
-typedef std::function<void(const trading::data::Trade&)> trade_callback;
-typedef std::shared_ptr<const trading::data::Order> order_ptr;
+typedef std::function<void(const std::shared_ptr<trading::data::Trade>)> trade_callback;
+typedef std::shared_ptr<trading::data::Order> order_ptr;
 
 class PriceGroup {
 public:
 	PriceGroup(bool buy_or_sell, trading::data::price_t price)
 		: buy_or_sell_(buy_or_sell),
-		price_(price) { }
+		  price_(price),
+		  total_quantity_(0) { }
 	void add_order(const order_ptr& order);
 	void execute_shares(trading::data::quantity_t shares, trade_callback callback);
 	trading::data::quantity_t quantity(void) const { return total_quantity_; }
@@ -30,7 +32,7 @@ public:
 private:
 
 	const trading::data::price_t price_;
-	std::list<order_ptr> orders_;
+	std::unordered_map<std::string, order_ptr> orders_;
 	trading::data::quantity_t total_quantity_;
 	bool buy_or_sell_;
 };

@@ -17,34 +17,61 @@ namespace matcher {
  */
 
 void PriceGroup::add_order(const order_ptr& order) {
-	orders_.push_back(order);
+	orders_.insert(make_pair(order->order_id(), order));
 	total_quantity_ += order->quantity();
 }
 
 
-/* TODO: There is going to be some very funky floating point
- * stuff going on here; we should probably decide on some
- * minimum fractional share to use, or (probably better),
- * get rid of partial shares altogether and award remaining 
- * shares to the biggest orders instead of having fractional executions
+/*
+ * TODO: Should probably give priority to orders from earlier windows
+ * (i.e. only be time-agnostic within each execution window)
  */
-
 void PriceGroup::execute_shares(quantity_t shares, trade_callback callback) {
-	Trade trade;
-	if (shares == quantity()) {
-		for (auto it = orders_.begin() ; it != orders_.end() ; ++it) {
-			trade.set_quantity((*it)->quantity()).set_order_id((*it)->order_id());
-			// TODO: assign trade IDs
-			// Orderbook will assign price
-			callback(trade);
-		}
+	// TODO: assert(shares <= quantity())
+	quantity_t exec_quantity;
+	quantity_t shares_remaining = shares;
+	vector<shared_ptr<Trade> > trades;
+
+	for (auto it = orders_.begin() ; it != orders_.end() ; ++it) {
+		order_ptr order = it->second;
+		Trade *p_trade(new Trade);
+		// initially, execute proportional shares (rounded down) for each order
+		exec_quantity = (order->quantity_remaining() * shares) / total_quantity_;
+		p_trade->set_quantity(exec_quantity).set_order_id(order->order_id());
+		order->set_quantity_remaining(order->quantity_remaining() - exec_quantity);
+		shares_remaining -= exec_quantity;
+		// TODO: assign trade IDs
+		// Orderbook will assign price
+		trades.emplace_back(p_trade);
 	}
 
+	/*
+	 * TODO: For now, award extra shares in basically arbitrary order (according
+	 * to hash map iterator).  This should change to be something more
+	 * deterministic (and less game-able).  I am thinking of possibly
+	 * ordering by remaining quantity (descending).
+	 */
+	for (auto it = trades.begin() ; it != trades.end() ; ++it) {
+		order_ptr& order = orders_[(*it)->order_id()];
+		if (shares_remaining > 0 && order->quantity_remaining() > 0) {
+			(*it)->set_quantity((*it)->quantity() + 1);
+			order->set_quantity_remaining(order->quantity_remaining() - 1);
+			--shares_remaining;
+		}
+		callback(*it);
+	}
+
+	total_quantity_ -= shares;
 }
 
 
 int buy_compare(const Order& x, const PriceGroup& y) {
-	return y.price() - x.price();
+	price_t diff = y.price() - x.price();
+	if (diff < 0) {
+		return -1;
+	} else {
+		return diff > 0;
+	}
 }
 
 
@@ -85,8 +112,8 @@ void Orderbook::match_orders(trade_callback callback) {
 	group_list::iterator it_buy = buy_groups_.begin();
 	group_list::iterator it_sell = sell_groups_.begin();
 
-	vector<Trade> trades;
-	auto add_trade = [&trades](const Trade& trade) { trades.push_back(trade); };
+	vector<shared_ptr<Trade> > trades;
+	auto add_trade = [&trades](shared_ptr<Trade> trade) { trades.push_back(trade); };
 	price_t mean_price;
 
 	while (it_buy != buy_groups_.end() &&
@@ -109,7 +136,7 @@ void Orderbook::match_orders(trade_callback callback) {
 	}
 
 	for (auto it = trades.begin() ; it != trades.end() ; ++it) {
-		it->set_price(mean_price);
+		(*it)->set_price(mean_price);
 		callback(*it);
 	}
 }

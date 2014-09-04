@@ -16,11 +16,14 @@ Order::Order(const std::string& order_id, const std::string& user_id,
 	  user_id_(user_id),
 	  symbol_(symbol),
 	  quantity_(quantity),
+	  quantity_remaining_(quantity),
 	  price_(price),
 	  buy_or_sell_(buy_or_sell)
 { }
 
 
+// orders are only sent over the wire to indicate new orders,
+// so proto messages do not need to support remaining quantity
 Order::Order(const ProtoOrder& message) : Order(
 	message.order_id(),
 	message.user_id(),

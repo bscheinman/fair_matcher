@@ -13,5 +13,5 @@ message ProtoOrder {
 	SELL = 2;
   }
   
-  optional Side buy_or_sell = 8;
+  optional Side buy_or_sell = 6;
 }

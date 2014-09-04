@@ -14,7 +14,12 @@ MatchServer::MatchServer(io_service& io, const short port)
 	: io_(io),
 	  port_(port),
 	  acceptor_(io, tcp::endpoint(tcp::v4(), port)),
-	  engine_(io) {
+	  engine_(io)
+{ }
+
+
+void MatchServer::start(void) {
+	engine_.start();
 	accept_connection_();
 }
 
@@ -38,6 +43,7 @@ int main(int argc, char* argv[]) {
     (void)argv;
 	io_service io;
 	trading::matcher::MatchServer server(io, 2468);
+	server.start();
 	io.run();
 	return 0;
 }

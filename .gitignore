@@ -33,3 +33,4 @@ tags
 # binary files
 client/trade_client
 matcher/match_server
+matcher/test/orderbook_test

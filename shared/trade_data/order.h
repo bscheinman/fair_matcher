@@ -35,6 +35,9 @@ public:
 	quantity_t quantity(void) const { return quantity_; }
 	Order& set_quantity(quantity_t quantity) { quantity_ = quantity; return *this; }
 
+	quantity_t quantity_remaining(void) const { return quantity_remaining_; }
+	Order& set_quantity_remaining(quantity_t quantity) { quantity_remaining_ = quantity; return *this; }
+
 	price_t price(void) const { return price_; }
 	Order& set_price(price_t price) { price_ = price; return *this; }
 
@@ -46,6 +49,7 @@ private:
 	boost::flyweight<std::string> user_id_;
 	boost::flyweight<std::string> symbol_;
 	quantity_t quantity_;
+	quantity_t quantity_remaining_;
 	price_t price_;
 	bool buy_or_sell_;
 };

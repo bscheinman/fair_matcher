@@ -1,7 +1,9 @@
 #include "client_session.h"
 #include "heartbeat.h"
 #include "heartbeat_ack.h"
+#include "order.h"
 #include <sstream>
+#include <string>
 #include <boost/asio.hpp>
 
 #include <iostream>
@@ -24,6 +26,15 @@ void ClientSession::process_message_(MessageType message_type, const char* const
 		HeartbeatAck ack(hb.sequence());
 		send_message(ack);
 		cout << "Responded to heartbeat #" << hb.sequence() << endl;
+
+		if (hb.sequence() % 2 == 0) {
+			Order o(string("order1"), string("user1"), string("GOOG"), 100, 500.00, true);
+			send_message(o);
+		} else {
+			Order o(string("order2"), string("user2"), string("GOOG"), 75, 500.00, false);
+			send_message(o);
+		}
+
 		break;
 	}
 	default: break;
