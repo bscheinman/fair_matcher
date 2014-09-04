@@ -48,8 +48,8 @@ void PriceGroup::execute_shares(quantity_t shares, trade_callback callback) {
 	/*
 	 * TODO: For now, award extra shares in basically arbitrary order (according
 	 * to hash map iterator).  This should change to be something more
-	 * deterministic (and less game-able).  I am thinking of possibly
-	 * ordering by remaining quantity (descending).
+	 * deterministic (and, more importantly, less game-able).
+	 * I am thinking of possibly ordering by remaining quantity (descending).
 	 */
 	for (auto it = trades.begin() ; it != trades.end() ; ++it) {
 		order_ptr& order = orders_[(*it)->order_id()];
