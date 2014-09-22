@@ -3,25 +3,23 @@
 
 #include "server_session.h"
 #include "matcher_engine.h"
+#include "network_host.h"
 #include <boost/asio.hpp>
 
 namespace trading {
 namespace matcher {
 
-    class MatchServer {
-    public:
-        MatchServer(boost::asio::io_service& io, const short port);
-        void start(void);
+class MatchServer : public trading::network::NetworkHost<ServerSession> {
+public:
+	MatchServer(boost::asio::io_service& io, const short port);
+	virtual void start(void) override;
 
-    private:
-        void accept_connection_(void);
+protected:
+	virtual ServerSession* create_session_(void) override;
 
-        boost::asio::io_service& io_;
-        const short port_;
-        boost::asio::ip::tcp::acceptor acceptor_;
-        std::vector<std::shared_ptr<trading::matcher::ServerSession>> sessions_;
-		MatcherEngine engine_;
-    };
+private:
+	MatcherEngine engine_;
+};
 
 }
 }
