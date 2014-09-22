@@ -51,6 +51,7 @@ void Order::copy_from_proto(const ProtoOrder& proto) {
 	user_id_ = proto.user_id();
 	symbol_ = proto.symbol();
 	quantity_ = proto.quantity();
+	quantity_remaining_ = proto.quantity();
 	price_ = proto.price();
 	buy_or_sell_ = proto.buy_or_sell() == ProtoOrder::BUY;
 }

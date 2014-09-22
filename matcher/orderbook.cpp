@@ -1,6 +1,4 @@
 #include "orderbook.h"
-#include <algorithm>
-#include <vector>
 
 using namespace trading::data;
 using namespace std;
@@ -18,7 +16,7 @@ namespace matcher {
 
 void PriceGroup::add_order(const order_ptr& order) {
 	orders_.insert(make_pair(order->order_id(), order));
-	total_quantity_ += order->quantity();
+	total_quantity_ += order->quantity_remaining();
 }
 
 

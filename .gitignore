@@ -37,3 +37,6 @@ matcher/test/orderbook_test
 
 # project files
 .idea
+
+#build directory
+build
