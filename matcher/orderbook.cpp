@@ -49,14 +49,14 @@ void PriceGroup::execute_shares(quantity_t shares, trade_callback callback) {
 	 * deterministic (and, more importantly, less game-able).
 	 * I am thinking of possibly ordering by remaining quantity (descending).
 	 */
-	for (auto it = trades.begin() ; it != trades.end() ; ++it) {
-		order_ptr& order = orders_[(*it)->order_id()];
+	for (auto trade : trades) {
+		order_ptr& order = orders_[trade->order_id()];
 		if (shares_remaining > 0 && order->quantity_remaining() > 0) {
-			(*it)->set_quantity((*it)->quantity() + 1);
+			trade->set_quantity(trade->quantity() + 1);
 			order->set_quantity_remaining(order->quantity_remaining() - 1);
 			--shares_remaining;
 		}
-		callback(*it);
+		callback(trade);
 	}
 
 	total_quantity_ -= shares;
@@ -88,7 +88,7 @@ void Orderbook::add_order(const order_ptr& order) {
 
 	group_list& groups = order->buy_or_sell() ? buy_groups_ : sell_groups_;
 	order_comparer& comparer = order->buy_or_sell() ? buy_comparer : sell_comparer;
-	group_list::iterator it = groups.begin();
+	auto it = groups.begin();
 	while (it != groups.end() && comparer(*order, *it) > 0) {
 		++it;
 	}
@@ -107,8 +107,8 @@ void Orderbook::add_order(const order_ptr& order) {
 
 void Orderbook::match_orders(trade_callback callback) {
 	lock_guard<mutex> lock(mutex_);
-	group_list::iterator it_buy = buy_groups_.begin();
-	group_list::iterator it_sell = sell_groups_.begin();
+	auto it_buy = buy_groups_.begin();
+	auto it_sell = sell_groups_.begin();
 
 	vector<shared_ptr<Trade> > trades;
 	auto add_trade = [&trades](shared_ptr<Trade> trade) { trades.push_back(trade); };
@@ -133,9 +133,9 @@ void Orderbook::match_orders(trade_callback callback) {
 			
 	}
 
-	for (auto it = trades.begin() ; it != trades.end() ; ++it) {
-		(*it)->set_price(mean_price);
-		callback(*it);
+	for (auto trade : trades) {
+		trade->set_price(mean_price);
+		callback(trade);
 	}
 }
 
