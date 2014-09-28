@@ -24,7 +24,9 @@ public:
 		  window_(window) { }
 	void add_order(order_ptr order);
 	void execute_shares(trading::data::quantity_t shares, trade_callback callback);
+
 	trading::data::quantity_t quantity(void) const { return total_quantity_; }
+	trading::data::window_t window(void) const { return window_; }
 
 private:
 	std::unordered_map<std::string, order_ptr> orders_;
@@ -37,8 +39,7 @@ class PriceGroup {
 public:
 	PriceGroup(trading::data::price_t price)
 		: price_(price),
-		  total_quantity_(0),
-		  last_window_(0) { }
+		  total_quantity_(0) { }
 
 	void add_order(order_ptr order);
 	void execute_shares(trading::data::quantity_t shares, trade_callback callback);
@@ -48,7 +49,6 @@ public:
 
 private:
 	std::list<WindowGroup> windows_;
-	trading::data::window_t last_window_;
 	trading::data::quantity_t total_quantity_;
 	const trading::data::price_t price_;
 };

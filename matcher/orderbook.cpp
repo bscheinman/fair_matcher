@@ -60,9 +60,8 @@ void WindowGroup::execute_shares(quantity_t shares, trade_callback callback) {
 
 
 void PriceGroup::add_order(order_ptr order) {
-	if (order->window() > last_window_) {
+	if (windows_.empty() || windows_.back().window() < order->window()) {
 		windows_.emplace_back(order->window());
-		last_window_ = order->window();
 	}
 	windows_.back().add_order(order);
 	total_quantity_ += order->quantity_remaining();
