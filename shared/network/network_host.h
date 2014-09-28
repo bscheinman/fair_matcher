@@ -20,6 +20,10 @@ public:
 
 protected:
 	virtual SessionType* create_session_(void) = 0;
+	typedef std::vector<std::shared_ptr<SessionType>> session_list;
+	const session_list& get_sessions_(void) {
+		return sessions_;
+	}
 
 	boost::asio::io_service& io_;
 
@@ -37,10 +41,10 @@ private:
 
 	const short port_;
 	boost::asio::ip::tcp::acceptor acceptor_;
-	std::vector<std::shared_ptr<SessionType>> sessions_;
+	session_list sessions_;
 };
 
 }
 }
 
-#endif /* NETWORK_*HOST_H_ */
+#endif /* NETWORK_HOST_H_ */

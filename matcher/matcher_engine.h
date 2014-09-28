@@ -1,6 +1,7 @@
 #ifndef MATCHER_ENGINE_H_
 #define MATCHER_ENGINE_H_
 
+#include "match_server_context.h"
 #include "orderbook.h"
 #include "order.h"
 #include <string>
@@ -15,11 +16,14 @@ namespace matcher {
 class MatcherEngine {
 public:
 
-	MatcherEngine(boost::asio::io_service& io, unsigned long exec_interval)
+	MatcherEngine(boost::asio::io_service& io, MatchServerContext& context, unsigned long exec_interval)
 		: exec_interval_(exec_interval),
+		  context_(context),
 		  exec_timer_(io) { }
-	MatcherEngine(boost::asio::io_service& io)
-		: MatcherEngine(io, DEFAULT_EXEC_INTERVAL) { }
+
+	MatcherEngine(boost::asio::io_service& io, MatchServerContext& context)
+		: MatcherEngine(io, context, DEFAULT_EXEC_INTERVAL) { }
+
 	void process_order(std::shared_ptr<trading::data::Order> order);
 	void start(void);
 
@@ -30,6 +34,7 @@ private:
 	std::unordered_map<std::string, Orderbook> orderbooks_;
 	const unsigned long exec_interval_;
 	boost::asio::deadline_timer exec_timer_;
+	MatchServerContext& context_;
 
 };
 

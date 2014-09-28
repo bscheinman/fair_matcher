@@ -46,7 +46,7 @@ void ServerSession::process_heartbeat_ack_(const HeartbeatAck& ack) {
 
 
 void ServerSession::process_order_(shared_ptr<Order> order) {
-	engine_.process_order(order);
+	context_.engine()->process_order(order);
 }
 
 

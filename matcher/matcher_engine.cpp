@@ -1,4 +1,5 @@
 #include "matcher_engine.h"
+#include "market_data_host.h"
 #include <iostream>
 
 using namespace trading::data;
@@ -8,7 +9,7 @@ namespace trading {
 namespace matcher {
 
 void MatcherEngine::start(void) {
-	//orderbooks_.emplace("GOOG");
+	//TODO: read symbols from input file or something similar
 	orderbooks_.emplace(
 		std::piecewise_construct,
 		std::forward_as_tuple("GOOG"),
@@ -31,9 +32,10 @@ void MatcherEngine::process_order(shared_ptr<Order> order) {
 
 void MatcherEngine::match_orders_(void) {
 	for (auto it = orderbooks_.begin() ; it != orderbooks_.end() ; ++it) {
-		it->second.match_orders([&it](shared_ptr<Trade> trade) {
+		it->second.match_orders([this, &it](shared_ptr<Trade> trade) {
 			cout << "executed " << trade->quantity() << " shares of " << it->first
 				<< " at " << trade->price() << endl;
+		    context_.md_host()->broadcast_trade(*trade);
 		});
 	}
 }

@@ -10,7 +10,8 @@ namespace data {
 		MT_HeartbeatAck = 2,
 		MT_Order = 3,
 		MT_OrderAck = 4,
-		MT_Trade = 5
+		MT_Trade = 5,
+		MT_MarketDataSubscribe = 6,
 	} MessageType;
 
 }

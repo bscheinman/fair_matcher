@@ -3,6 +3,7 @@
 
 #include "heartbeat_ack.h"
 #include "matcher_engine.h"
+#include "match_server_context.h"
 #include "order.h"
 #include "../shared/network/network_session.h"
 #include "../shared/trade_data/message_types.h"
@@ -16,10 +17,10 @@ namespace matcher {
 
 class ServerSession : public trading::network::NetworkSession {
 public:
-	ServerSession(boost::asio::io_service& io, MatcherEngine& engine)
+	ServerSession(boost::asio::io_service& io, MatchServerContext& context)
 	  : trading::network::NetworkSession(io),
-	    heartbeat_timer_(io),
-		engine_(engine) { }
+	    context_(context),
+	    heartbeat_timer_(io) { }
 	virtual void start(void) override;
 
 protected:
@@ -32,7 +33,7 @@ private:
 	void send_heartbeat_(unsigned int sequence);
 
 	boost::asio::deadline_timer heartbeat_timer_;
-	MatcherEngine& engine_;
+	MatchServerContext& context_;
 };
 
 }

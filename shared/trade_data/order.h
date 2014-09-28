@@ -5,23 +5,22 @@
 #include "order.pb.h"
 #include "data_types.h"
 #include <string>
-#include <boost/flyweight.hpp>
 
 namespace trading {
 namespace data {
 
 class Order : public ProtoWrapper<
-		trading::data::proto::ProtoOrder,
-		trading::data::MessageType::MT_Order> {
+		proto::ProtoOrder,
+		MessageType::MT_Order> {
 public:
 	Order(void) { }
 	Order(const std::string& order_id, const std::string& user_id,
 		const std::string& symbol, quantity_t quantity, price_t price,
 		bool buy_or_sell);
-	Order(const trading::data::proto::ProtoOrder& proto);
+	Order(const proto::ProtoOrder& proto);
 
-	virtual trading::data::proto::ProtoOrder to_proto(void) const override;
-	virtual void copy_from_proto(const trading::data::proto::ProtoOrder& proto) override;
+	virtual proto::ProtoOrder to_proto(void) const override;
+	virtual void copy_from_proto(const proto::ProtoOrder& proto) override;
 
 	const std::string& order_id(void) const { return order_id_; }
 	Order& set_order_id(const std::string& order_id) { order_id_ = order_id; return *this; }
@@ -46,8 +45,8 @@ public:
 
 private:
 	std::string order_id_;
-	boost::flyweight<std::string> user_id_;
-	boost::flyweight<std::string> symbol_;
+	user_id_t user_id_;
+	symbol_t symbol_;
 	quantity_t quantity_;
 	quantity_t quantity_remaining_;
 	price_t price_;

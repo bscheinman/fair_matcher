@@ -1,0 +1,12 @@
+package trading.data.proto;
+
+message ProtoMarketDataSubscribe {
+    optional string symbol = 1;
+
+    enum SubscriptionType {
+        FULL = 0;
+        UNSUBSCRIBE = 1;
+    }
+    optional SubscriptionType type = 2;
+
+}

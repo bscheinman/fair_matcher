@@ -1,4 +1,4 @@
-add_executable(matcher match_server.cpp matcher_engine.cpp orderbook.cpp server_session.cpp)
+add_executable(matcher match_server.cpp matcher_engine.cpp orderbook.cpp server_session.cpp market_data_host.cpp market_data_session.cpp)
 add_library(orderbook.o orderbook.cpp)
 
 include_directories(../shared/trade_data ../shared/network)
