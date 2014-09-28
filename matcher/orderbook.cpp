@@ -14,17 +14,13 @@ namespace matcher {
  * methods will need to lock.
  */
 
-void PriceGroup::add_order(const order_ptr& order) {
+void WindowGroup::add_order(order_ptr order) {
 	orders_.insert(make_pair(order->order_id(), order));
 	total_quantity_ += order->quantity_remaining();
 }
 
 
-/*
- * TODO: Should probably give priority to orders from earlier windows
- * (i.e. only be time-agnostic within each execution window)
- */
-void PriceGroup::execute_shares(quantity_t shares, trade_callback callback) {
+void WindowGroup::execute_shares(quantity_t shares, trade_callback callback) {
 	// TODO: assert(shares <= quantity())
 	quantity_t exec_quantity;
 	quantity_t shares_remaining = shares;
@@ -63,6 +59,36 @@ void PriceGroup::execute_shares(quantity_t shares, trade_callback callback) {
 }
 
 
+void PriceGroup::add_order(order_ptr order) {
+	if (order->window() > last_window_) {
+		windows_.emplace_front(order->window());
+		last_window_ = order->window();
+	}
+	windows_.begin()->add_order(order);
+	total_quantity_ += order->quantity_remaining();
+}
+
+
+void PriceGroup::execute_shares(quantity_t shares, trade_callback callback) {
+	quantity_t shares_remaining = shares;
+	auto it = windows_.begin();
+	while (it != windows_.end() && shares_remaining > 0) {
+		auto exec_quantity = min(shares_remaining, it->quantity());
+		it->execute_shares(exec_quantity, callback);
+		if (it->quantity() == 0) {
+			it = windows_.erase(it);
+		}
+		shares_remaining -= exec_quantity;
+	}
+
+	if (shares_remaining == 0) {
+		total_quantity_ -= shares;
+	} else {
+		total_quantity_ = 0;
+	}
+}
+
+
 int buy_compare(const Order& x, const PriceGroup& y) {
 	price_t diff = y.price() - x.price();
 	if (diff < 0) {
@@ -83,7 +109,7 @@ order_comparer buy_comparer(&buy_compare);
 order_comparer sell_comparer(&sell_compare);
 
 
-void Orderbook::add_order(const order_ptr& order) {
+void Orderbook::add_order(order_ptr order) {
 	lock_guard<mutex> lock(mutex_);
 
 	group_list& groups = order->buy_or_sell() ? buy_groups_ : sell_groups_;
@@ -98,7 +124,7 @@ void Orderbook::add_order(const order_ptr& order) {
 	if (it != groups.end() && comparer(*order, *it) == 0) { 
 		it->add_order(order);
 	} else { // otherwise create a new group for it
-		PriceGroup group(order->buy_or_sell(), order->price());
+		PriceGroup group(order->price());
 		group.add_order(order);
 		groups.insert(it, move(group));
 	}

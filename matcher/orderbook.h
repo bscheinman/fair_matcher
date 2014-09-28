@@ -17,30 +17,46 @@ namespace matcher {
 typedef std::function<void(const std::shared_ptr<trading::data::Trade>)> trade_callback;
 typedef std::shared_ptr<trading::data::Order> order_ptr;
 
-class PriceGroup {
+class WindowGroup {
 public:
-	PriceGroup(bool buy_or_sell, trading::data::price_t price)
-		: buy_or_sell_(buy_or_sell),
-		  price_(price),
-		  total_quantity_(0) { }
-	void add_order(const order_ptr& order);
+	WindowGroup(trading::data::window_t window)
+		: total_quantity_(0),
+		  window_(window) { }
+	void add_order(order_ptr order);
 	void execute_shares(trading::data::quantity_t shares, trade_callback callback);
 	trading::data::quantity_t quantity(void) const { return total_quantity_; }
-	trading::data::price_t price(void) const { return price_; }
-	bool buy_or_sell(void) const { return buy_or_sell_; }
 
 private:
-
-	const trading::data::price_t price_;
 	std::unordered_map<std::string, order_ptr> orders_;
 	trading::data::quantity_t total_quantity_;
-	bool buy_or_sell_;
+	const trading::data::window_t window_;
+};
+
+
+class PriceGroup {
+public:
+	PriceGroup(trading::data::price_t price)
+		: price_(price),
+		  total_quantity_(0),
+		  last_window_(0) { }
+
+	void add_order(order_ptr order);
+	void execute_shares(trading::data::quantity_t shares, trade_callback callback);
+
+	trading::data::price_t price(void) const { return price_; }
+	trading::data::quantity_t quantity(void) const { return total_quantity_; }
+
+private:
+	std::list<WindowGroup> windows_;
+	trading::data::window_t last_window_;
+	trading::data::quantity_t total_quantity_;
+	const trading::data::price_t price_;
 };
 
 
 class Orderbook {
 public:
-	void add_order(const order_ptr& order);
+	void add_order(order_ptr order);
 	void match_orders(trade_callback callback);
 
 private:

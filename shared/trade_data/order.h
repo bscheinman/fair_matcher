@@ -16,7 +16,7 @@ public:
 	Order(void) { }
 	Order(const std::string& order_id, const std::string& user_id,
 		const std::string& symbol, quantity_t quantity, price_t price,
-		bool buy_or_sell);
+		bool buy_or_sell, window_t window);
 	Order(const proto::ProtoOrder& proto);
 
 	virtual proto::ProtoOrder to_proto(void) const override;
@@ -43,6 +43,10 @@ public:
 	bool buy_or_sell(void) const { return buy_or_sell_; }
 	Order& set_buy_or_sell(bool buy_or_sell) { buy_or_sell_ = buy_or_sell; return *this; }
 
+
+	window_t window(void) const { return window_; }
+	Order& set_window(window_t window) { window_ = window; return *this; }
+
 private:
 	std::string order_id_;
 	user_id_t user_id_;
@@ -51,6 +55,7 @@ private:
 	quantity_t quantity_remaining_;
 	price_t price_;
 	bool buy_or_sell_;
+	window_t window_;
 };
 
 }

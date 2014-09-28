@@ -19,13 +19,16 @@ public:
 	MatcherEngine(boost::asio::io_service& io, MatchServerContext& context, unsigned long exec_interval)
 		: exec_interval_(exec_interval),
 		  context_(context),
-		  exec_timer_(io) { }
+		  exec_timer_(io),
+		  window_(1) { }
 
 	MatcherEngine(boost::asio::io_service& io, MatchServerContext& context)
 		: MatcherEngine(io, context, DEFAULT_EXEC_INTERVAL) { }
 
 	void process_order(std::shared_ptr<trading::data::Order> order);
 	void start(void);
+
+	trading::data::window_t window(void) const { return window_; }
 
 private:
 	void match_orders_(void);
@@ -34,6 +37,7 @@ private:
 	std::unordered_map<std::string, Orderbook> orderbooks_;
 	const unsigned long exec_interval_;
 	boost::asio::deadline_timer exec_timer_;
+	trading::data::window_t window_;
 	MatchServerContext& context_;
 
 };

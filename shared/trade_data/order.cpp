@@ -11,26 +11,29 @@ namespace data {
 
 Order::Order(const std::string& order_id, const std::string& user_id,
 		const std::string& symbol, quantity_t quantity, price_t price,
-		bool buy_or_sell)
+		bool buy_or_sell, window_t window)
 	: order_id_(order_id),
 	  user_id_(user_id),
 	  symbol_(symbol),
 	  quantity_(quantity),
 	  quantity_remaining_(quantity),
 	  price_(price),
-	  buy_or_sell_(buy_or_sell)
+	  buy_or_sell_(buy_or_sell),
+	  window_(window)
 { }
 
 
 // orders are only sent over the wire to indicate new orders,
 // so proto messages do not need to support remaining quantity
+// or window
 Order::Order(const ProtoOrder& message) : Order(
 	message.order_id(),
 	message.user_id(),
 	message.symbol(),
 	message.quantity(),
 	message.price(),
-	message.buy_or_sell() == ProtoOrder::BUY)
+	message.buy_or_sell() == ProtoOrder::BUY,
+	0)
 { }
 
 

@@ -6,4 +6,5 @@ message Trade {
 	optional string user_id = 3;
 	optional uint32 quantity = 4;
 	optional float price = 5;
+	optional uint64 window = 6;
 };

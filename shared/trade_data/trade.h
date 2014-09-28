@@ -16,7 +16,7 @@ public:
 
 	Trade(void) { }
 	Trade(const std::string& trade_id, const std::string& order_id,
-		quantity_t quantity, price_t price);
+		quantity_t quantity, price_t price, window_t window);
 	Trade(const trading::data::proto::Trade& trade);
 
 	const std::string& trade_id(void) const { return trade_id_; }
@@ -31,6 +31,9 @@ public:
 	price_t price(void) const { return price_; }
 	Trade& set_price(price_t price) { price_ = price; return *this; }
 
+	window_t window(void) const { return window_; }
+	Trade& set_window(window_t window) { window_ = window; return *this; }
+
 	virtual void copy_from_proto(const trading::data::proto::Trade& proto) override;
 	virtual trading::data::proto::Trade to_proto(void) const override;
 private:
@@ -38,6 +41,7 @@ private:
 	std::string order_id_;
 	quantity_t quantity_;
 	price_t price_;
+	window_t window_;
 };
 
 }

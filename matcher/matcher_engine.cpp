@@ -26,6 +26,7 @@ void MatcherEngine::process_order(shared_ptr<Order> order) {
 		return;
 	}
 
+	order->set_window(window_);
 	orderbook_it->second.add_order(order);
 }
 
@@ -35,6 +36,7 @@ void MatcherEngine::match_orders_(void) {
 		it->second.match_orders([this, &it](shared_ptr<Trade> trade) {
 			cout << "executed " << trade->quantity() << " shares of " << it->first
 				<< " at " << trade->price() << endl;
+			trade->set_window(window_);
 		    context_.md_host()->broadcast_trade(*trade);
 		});
 	}
@@ -45,7 +47,10 @@ void MatcherEngine::start_exec_timer_(void) {
 	exec_timer_.expires_from_now(boost::posix_time::milliseconds(exec_interval_));
 	exec_timer_.async_wait([this](const boost::system::error_code& ec) {
 		start_exec_timer_();
+		// this can be a problem if matching orders begins to take the better part
+		// of a window interval
 		match_orders_();
+		++window_;
 	});
 }
 

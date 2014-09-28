@@ -28,10 +28,10 @@ void ClientSession::process_message_(MessageType message_type, const char* const
 		cout << "Responded to heartbeat #" << hb.sequence() << endl;
 
 		if (hb.sequence() % 2 == 0) {
-			Order o(string("order1"), string("user1"), string("GOOG"), 100, 500.00, true);
+			Order o(string("order1"), string("user1"), string("GOOG"), 100, 500.00, true, 0);
 			send_message(o);
 		} else {
-			Order o(string("order2"), string("user2"), string("GOOG"), 75, 500.00, false);
+			Order o(string("order2"), string("user2"), string("GOOG"), 75, 500.00, false, 0);
 			send_message(o);
 		}
 

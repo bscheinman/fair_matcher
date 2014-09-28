@@ -13,7 +13,7 @@ int main(int argc, char **argv) {
 	quantity_t quantity;
 	string side;
 	unsigned int order_count = 0;
-	unsigned int window_count = 0;
+	unsigned int window_count = 1;
 
 	while (true) {
 		cin >> input;
@@ -31,6 +31,7 @@ int main(int argc, char **argv) {
 			oss << "order_" << order_count++;
 			order->set_order_id(oss.str());
 			oss.clear();
+			order->set_window(window_count);
 			orderbook.add_order(order);
 		} else if (input.compare("M") == 0) {
 			cout << "window " << window_count++ << ":" << endl;
